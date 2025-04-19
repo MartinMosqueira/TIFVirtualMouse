@@ -1,11 +1,15 @@
 import cv2
 import mediapipe as mp
 import time
+from CursorTracker import CursorTracker
 
 class HandTracker:
     def __init__(self, model):
         self.model = model
         self.latest_frame = None
+
+        #Instanciamos la clase para mover el cursor
+        self.cursorTracker = CursorTracker()
 
         #clases para configurar el modelo
         BaseOptions = mp.tasks.BaseOptions
@@ -55,6 +59,10 @@ class HandTracker:
 
             # Dibujar los landmarks si están disponibles
             if self.latest_frame and self.latest_frame.hand_landmarks:
+                fingerIndex = self.latest_frame.hand_landmarks[0][8]
+
+                self.cursorTracker.move_cursor(fingerIndex.x, fingerIndex.y)
+
                 for hand_landmarks in self.latest_frame.hand_landmarks:
                     for landmark in hand_landmarks:
                         cx, cy = int(landmark.x * width), int(landmark.y * height)
