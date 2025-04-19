@@ -33,14 +33,19 @@ class HandTracker:
     def output_frame(self, result, output_image: mp.Image, timestamp_ms: int):
         self.latest_frame = result
 
+    def draw_landmark(self, landmark, frame, width, height):
+        cx, cy = int(landmark.x * width), int(landmark.y * height)
+        cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
+
     def run(self):
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
-            #Capturamos los frames de la camara
+            #Capture the frames from the camera.
             success, frame = cap.read()
             if not success:
                 break
 
+            #Resolution frame
             height, width, _ = frame.shape
 
             #======== Convert the frame received from OpenCV to a MediaPipe’s Image object. =========
@@ -52,7 +57,7 @@ class HandTracker:
 
             # ========
 
-            #We need to know the time in milliseconds of each frame since it is a video stream,
+            #Need to know the time in milliseconds of each frame since it is a video stream,
             #and we do not want them to be displayed out of order.
             timestamp = int(time.time() * 1000)
             self.detector.detect_async(mp_image, timestamp)
@@ -62,11 +67,7 @@ class HandTracker:
                 fingerIndex = self.latest_frame.hand_landmarks[0][8]
 
                 self.cursorTracker.move_cursor(fingerIndex.x, fingerIndex.y)
-
-                for hand_landmarks in self.latest_frame.hand_landmarks:
-                    for landmark in hand_landmarks:
-                        cx, cy = int(landmark.x * width), int(landmark.y * height)
-                        cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
+                self.draw_landmark(fingerIndex, frame, width, height)
 
             #Display frames in video
             cv2.imshow('frame', frame)
