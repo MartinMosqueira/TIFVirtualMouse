@@ -9,17 +9,17 @@ class HandTracker:
         self.latest_frame = None
         self.smoothing=0.5
 
-        #Instance the class for move cursor
+        # instance the class for move cursor
         self.cursorTracker = CursorTracker(self.smoothing)
 
-        #Class for config model
+        # class for config model
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
         HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
         #HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
         VisionRunningMode = mp.tasks.vision.RunningMode
 
-        #Params model
+        # params model
         options = HandLandmarkerOptions(
             base_options=BaseOptions(model_asset_path=model),
             running_mode=VisionRunningMode.LIVE_STREAM,
@@ -43,42 +43,42 @@ class HandTracker:
         # 1:intern camera
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
-            #Capture the frames from the camera.
+            # capture the frames from the camera.
             success, frame = cap.read()
             if not success:
                 break
 
-            #Resolution frame
+            # resolution frame
             height, width, _ = frame.shape
 
-            #======== Convert the frame received from OpenCV to a MediaPipe’s Image object. =========
+            #======== Convert the frame received from OpenCV to a MediaPipe’s Image object.
 
-            #Converts OpenCV BGR frames to RGB for the model
+            # converts OpenCV BGR frames to RGB for the model
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            #We create the images in the format that Mediapipe needs RGB
+            # create the images in the format that Mediapipe needs RGB
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
             # ========
 
-            #Need to know the time in milliseconds of each frame since it is a video stream,
-            #and we do not want them to be displayed out of order.
+            # need to know the time in milliseconds of each frame since it is a video stream,
+            # and we do not want them to be displayed out of order.
             timestamp = int(time.time() * 1000)
             self.detector.detect_async(mp_image, timestamp)
 
-            #Draw frames if available
+            # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
                 fingerIndex = self.latest_frame.hand_landmarks[0][8]
 
                 self.cursorTracker.move_cursor(fingerIndex.x, fingerIndex.y)
                 self.draw_landmark(fingerIndex, frame, width, height)
 
-            #Display frames in video
+            # display frames in video
             cv2.imshow('frame', frame)
 
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        #Free resources
+        # free resources
         cap.release()
         cv2.destroyAllWindows()
