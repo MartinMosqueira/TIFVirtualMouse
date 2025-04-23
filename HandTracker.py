@@ -7,9 +7,10 @@ class HandTracker:
     def __init__(self, model):
         self.model = model
         self.latest_frame = None
+        self.smoothing=0.5
 
         #Instance the class for move cursor
-        self.cursorTracker = CursorTracker()
+        self.cursorTracker = CursorTracker(self.smoothing)
 
         #Class for config model
         BaseOptions = mp.tasks.BaseOptions
@@ -38,6 +39,8 @@ class HandTracker:
         cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
 
     def run(self):
+        # 0:extern camera
+        # 1:intern camera
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
             #Capture the frames from the camera.
