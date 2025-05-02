@@ -38,6 +38,9 @@ class HandTracker:
         cx, cy = int(landmark.x * width), int(landmark.y * height)
         cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
 
+    def finger_up(self):
+        pass
+
     def run(self):
         # 0:extern camera
         # 1:intern camera
@@ -67,10 +70,11 @@ class HandTracker:
 
             # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
-                fingerIndex = self.latest_frame.hand_landmarks[0][8]
+                fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
+                print(self.latest_frame.hand_landmarks)
 
-                self.cursorTracker.move_cursor(fingerIndex.x, fingerIndex.y)
-                self.draw_landmark(fingerIndex, frame, width, height)
+                self.cursorTracker.move_cursor(fingerMiddleTip.x, fingerMiddleTip.y)
+                self.draw_landmark(fingerMiddleTip, frame, width, height)
 
             # display frames in video
             cv2.imshow('frame', frame)

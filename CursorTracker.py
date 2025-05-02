@@ -1,4 +1,5 @@
 import autopy
+import threading
 
 class CursorTracker:
     def __init__(self, smoothing):
@@ -34,3 +35,7 @@ class CursorTracker:
         screen_y = self.screen_height * smooth_y
 
         autopy.mouse.move(screen_x, screen_y)
+
+    def click_cursor(self):
+        threading.Thread(target=autopy.mouse.click).start()
+        print("click cursor")
