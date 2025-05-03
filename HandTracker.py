@@ -79,7 +79,7 @@ class HandTracker:
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
 
                 # format coordinates for dataset
-                self.formatData.add_format_coordinates(self.latest_frame, 1)
+                self.formatData.format_coordinates(0, 1, self.latest_frame)
 
             # display frames in video
             cv2.imshow('frame', frame)
