@@ -78,8 +78,9 @@ class HandTracker:
                 self.cursorTracker.move_cursor(fingerMiddleTip.x, fingerMiddleTip.y)
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
 
-                # format coordinates for dataset
-                self.formatData.format_coordinates(0, 1, self.latest_frame)
+                # extract and format coordinates for dataset
+                coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
+                self.formatData.format_coordinates(0, 1, coordinates)
 
             # display frames in video
             cv2.imshow('frame', frame)
