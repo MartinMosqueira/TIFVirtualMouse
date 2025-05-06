@@ -2,13 +2,14 @@ import autopy
 import threading
 
 class CursorTracker:
-    def __init__(self, smoothing):
+    def __init__(self, smoothing, invert=False):
         # get screen size
         self.screen_width, self.screen_height = autopy.screen.size()
 
         self.prev_x = None
         self.prev_y = None
         self.smoothing = smoothing
+        self.invert = invert
 
     def move_cursor(self, x, y):
         # off-screen detection
@@ -24,6 +25,10 @@ class CursorTracker:
         # new position smoothing
         smooth_x = self.prev_x * (1 - self.smoothing) + x * self.smoothing
         smooth_y = self.prev_y * (1 - self.smoothing) + y * self.smoothing
+
+        if self.invert:
+            smooth_x = 1 - smooth_x
+            smooth_y = 1 - smooth_y
 
         # update preview position
         self.prev_x = smooth_x
