@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 from CursorTracker import CursorTracker
 from FormatData import FormatData
+from AdaptiveCursor import AdaptiveCursor
 
 class HandTracker:
     def __init__(self, model):
@@ -11,7 +12,7 @@ class HandTracker:
         self.smoothing=0.5
 
         # instance the class for move cursor
-        self.cursorTracker = CursorTracker(self.smoothing)
+        self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
 
         # instance the class for dataset
         self.formatData = FormatData()
@@ -75,12 +76,12 @@ class HandTracker:
             # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
                 fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
-                self.cursorTracker.move_cursor(fingerMiddleTip.x, fingerMiddleTip.y)
+                self.cursorTracker.move(fingerMiddleTip.x, fingerMiddleTip.y)
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
 
                 # extract and format coordinates for dataset
-                coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
-                self.formatData.format_coordinates(0, 1, coordinates)
+                # coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
+                # self.formatData.format_coordinates(7, 1, coordinates)
 
             # display frames in video
             cv2.imshow('frame', frame)
@@ -88,7 +89,7 @@ class HandTracker:
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 # output format coordinates
-                self.formatData.get_coordinates()
+                # self.formatData.get_coordinates()
                 break
 
         # free resources
