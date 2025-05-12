@@ -1,9 +1,8 @@
 import cv2
 import mediapipe as mp
 import time
-from CursorTracker import CursorTracker
-from FormatData import FormatData
-from AdaptiveCursor import AdaptiveCursor
+from model.FormatData import FormatData
+from controller.AdaptiveCursor import AdaptiveCursor
 
 class HandTracker:
     def __init__(self, model):
