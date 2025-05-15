@@ -1,4 +1,7 @@
-import autopy, time, math
+import time
+import math
+import autopy
+import threading
 
 class AdaptiveCursor:
     def __init__(self, alpha_min, alpha_max, speed_sens):
@@ -51,3 +54,7 @@ class AdaptiveCursor:
         self.prev_x, self.prev_y = x, y
         self.prev_sx, self.prev_sy = sx, sy
         self.prev_t = now
+
+    def click_cursor(self):
+        threading.Thread(target=autopy.mouse.click).start()
+        print("click cursor")
