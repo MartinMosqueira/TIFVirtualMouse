@@ -1,14 +1,21 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
+from tensorflow.keras.models import load_model
 from model.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
 
 class HandTracker:
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, modelHand):
+        self.modelHand = modelHand
         self.latest_frame = None
-        self.smoothing=0.5
+
+        self.modelFinger = load_model('model/gesture_lstm.h5')
+        # number of frames processed by model
+        self.T = 30
+        self.threshold = 0.6
+        self.buffer = []
 
         # instance the class for move cursor
         self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
@@ -25,7 +32,7 @@ class HandTracker:
 
         # params model
         options = HandLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=model),
+            base_options=BaseOptions(model_asset_path=modelHand),
             running_mode=VisionRunningMode.LIVE_STREAM,
             min_hand_detection_confidence=0.5,
             min_hand_presence_confidence=0.5,
@@ -75,8 +82,29 @@ class HandTracker:
             # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
                 fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
+
                 self.cursorTracker.move(fingerMiddleTip.x, fingerMiddleTip.y)
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
+
+                # ========== TEST MODEL FINGER
+                formatFrame = self.formatData.extract_scale_coordinates(self.latest_frame)
+                self.buffer.append(formatFrame)
+                if len(self.buffer) > self.T:
+                    self.buffer.pop(0)
+
+                if len(self.buffer) == self.T:
+                    #  convert array (T, 63) to numpy array and add batch dimension
+                    seq = np.array(self.buffer)[None, ...]   # shape (1, T, 63)
+                    # extract prediction
+                    prob = float(self.modelFinger.predict(seq, verbose=0)[0,0])
+                    # print(f"Probabilidad de gesto: {prob:.3f}")
+
+                    if prob > self.threshold:
+                        # gesture detected
+                        self.cursorTracker.click_cursor()
+                        self.buffer.clear()
+                # ==========
+
 
                 # extract and format coordinates for dataset
                 # coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
