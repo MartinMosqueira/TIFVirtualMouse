@@ -1,8 +1,6 @@
 import cv2
 import mediapipe as mp
 import time
-import numpy as np
-from tensorflow.keras.models import load_model
 from model.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
 
@@ -11,11 +9,9 @@ class HandTracker:
         self.modelHand = modelHand
         self.latest_frame = None
 
-        self.modelFinger = load_model('model/gesture_lstm.h5')
-        # number of frames processed by model
-        self.T = 30
-        self.threshold = 0.6
-        self.buffer = []
+        # control delay click
+        self.click_delay = 1
+        self.click_time = 0
 
         # instance the class for move cursor
         self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
@@ -82,29 +78,20 @@ class HandTracker:
             # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
                 fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
+                fingerMiddleDip = self.latest_frame.hand_landqmarks[0][10]
+                fingerIndexTip = self.latest_frame.hand_landmarks[0][8]
 
                 self.cursorTracker.move(fingerMiddleTip.x, fingerMiddleTip.y)
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
 
-                # ========== TEST MODEL FINGER
-                formatFrame = self.formatData.extract_scale_coordinates(self.latest_frame)
-                self.buffer.append(formatFrame)
-                if len(self.buffer) > self.T:
-                    self.buffer.pop(0)
-
-                if len(self.buffer) == self.T:
-                    #  convert array (T, 63) to numpy array and add batch dimension
-                    seq = np.array(self.buffer)[None, ...]   # shape (1, T, 63)
-                    # extract prediction
-                    prob = float(self.modelFinger.predict(seq, verbose=0)[0,0])
-                    # print(f"Probabilidad de gesto: {prob:.3f}")
-
-                    if prob > self.threshold:
-                        # gesture detected
+                # detection click
+                if fingerIndexTip.y < fingerMiddleDip.y:
+                    now = time.time()
+                    if now - self.click_time > self.click_delay:
+                        # click
+                        self.click_time = now
+                        self.draw_landmark(fingerMiddleTip, frame, width, height)
                         self.cursorTracker.click_cursor()
-                        self.buffer.clear()
-                # ==========
-
 
                 # extract and format coordinates for dataset
                 # coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
