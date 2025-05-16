@@ -78,7 +78,7 @@ class HandTracker:
             # draw frames if available
             if self.latest_frame and self.latest_frame.hand_landmarks:
                 fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
-                fingerMiddleDip = self.latest_frame.hand_landqmarks[0][10]
+                fingerMiddleDip = self.latest_frame.hand_landmarks[0][10]
                 fingerIndexTip = self.latest_frame.hand_landmarks[0][8]
 
                 self.cursorTracker.move(fingerMiddleTip.x, fingerMiddleTip.y)
