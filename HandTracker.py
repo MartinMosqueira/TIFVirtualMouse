@@ -3,7 +3,7 @@ import mediapipe as mp
 import time
 import numpy as np
 from tensorflow.keras.models import load_model
-from model.FormatData import FormatData
+from training.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
 
 class HandTracker:
