@@ -11,7 +11,7 @@ class HandTracker:
         self.modelHand = modelHand
         self.latest_frame = None
 
-        self.modelFinger = load_model('model/gesture_lstm.h5')
+        self.modelFinger = load_model('model/gesture/click/gesture_lstmV2.h5')
         # number of frames processed by model
         self.T = 30
         self.threshold = 0.6
