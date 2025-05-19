@@ -107,7 +107,7 @@ class HandTracker:
 
 
                 # extract and format coordinates for dataset
-                # coordinates = self.formatData.extract_scale_coordinates(self.latest_frame)
+                # coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
                 # self.formatData.format_coordinates(7, 1, coordinates)
 
             # display frames in video

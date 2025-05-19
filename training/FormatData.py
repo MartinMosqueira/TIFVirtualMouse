@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class FormatData:
     def __init__(self):
@@ -44,6 +45,38 @@ class FormatData:
             (p1.y - p2.y) ** 2 +
             (p1.z - p2.z) ** 2
         )
+
+    def extract_align_coordinates(self, frame):
+        scaled_list = self.extract_scale_coordinates(frame)
+        scaled_matrix = np.array(scaled_list).reshape(-1, 3) # shape (21, 3) for frame
+
+        # scaling points
+        p0  = scaled_matrix[0]    # wrist
+        p5  = scaled_matrix[5]    # index finger base
+        p9 = scaled_matrix[9]     # middle finger base (palm center)
+
+        # orthonormal vectors
+        # wrist → palm center
+        v0 = p9 - p0
+        # normalize v0
+        X = v0 / np.linalg.norm(v0)
+
+        # wrist → index finger base
+        v1 = p5 - p0
+        # project v1 onto v0 to make it perpendicular
+        Y = v1 - np.dot(v1, X) * X
+        # normalize Y
+        Y = Y / np.linalg.norm(Y)
+
+        Z = np.cross(X, Y)
+
+        # change-of-basis matrix
+        R = np.stack([X, Y, Z], axis=1)
+
+        # project the points onto the new basis
+        aligned = scaled_matrix.dot(R)
+
+        return aligned.flatten().tolist()
 
     def format_coordinates(self, sequence, istrue, coordinates):
         formatCoordinate = [sequence ,self.index, istrue] + coordinates
