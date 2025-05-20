@@ -1,5 +1,7 @@
 import math
 import numpy as np
+from fontTools.misc.bezierTools import epsilon
+
 
 class FormatData:
     def __init__(self):
@@ -55,20 +57,31 @@ class FormatData:
         p5  = scaled_matrix[5]    # index finger base
         p9 = scaled_matrix[9]     # middle finger base (palm center)
 
-        # orthonormal vectors
+        epsilon = 1e-6
+        #======= Orthonormal vectors
+
         # wrist → palm center
         v0 = p9 - p0
-        # normalize v0
-        X = v0 / np.linalg.norm(v0)
+        # normalize X
+        norm_v0 = np.linalg.norm(v0)
+        if norm_v0 < epsilon:
+            norm_v0 = epsilon
+        X = v0 / norm_v0
 
         # wrist → index finger base
         v1 = p5 - p0
         # project v1 onto v0 to make it perpendicular
-        Y = v1 - np.dot(v1, X) * X
+        proj = v1 - np.dot(v1, X) * X
         # normalize Y
-        Y = Y / np.linalg.norm(Y)
+        norm_v1 = np.linalg.norm(proj)
+        if norm_v1 < epsilon:
+            norm_v1 = epsilon
+        Y = proj / norm_v1
 
+        # normalize Z
         Z = np.cross(X, Y)
+
+        #========
 
         # change-of-basis matrix
         R = np.stack([X, Y, Z], axis=1)
