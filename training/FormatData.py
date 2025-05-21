@@ -1,12 +1,10 @@
 import math
 import numpy as np
-from fontTools.misc.bezierTools import epsilon
-
 
 class FormatData:
     def __init__(self):
         self.coordinates = []
-        self.index = 0
+        self.index = 1
 
     def extract_coordinates(self, frame):
         coordinate = []
@@ -99,3 +97,9 @@ class FormatData:
     def get_coordinates(self):
         for coord in self.coordinates:
             print(*coord, sep=", ")
+
+    def write_file(self, filename):
+        with open(filename, "a") as f:
+            for coord in self.coordinates:
+                line = ", ".join(map(str, coord))
+                f.write(line + "\n")

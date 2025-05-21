@@ -56,6 +56,8 @@ class HandTracker:
         # 0:extern camera
         # 1:intern camera
         cap = cv2.VideoCapture(0)
+
+        counter = 0
         while cap.isOpened():
             # capture the frames from the camera.
             success, frame = cap.read()
@@ -87,6 +89,7 @@ class HandTracker:
                 self.draw_landmark(fingerMiddleTip, frame, width, height)
 
                 # ========== TEST MODEL FINGER
+                '''
                 formatFrame = self.formatData.extract_scale_coordinates(self.latest_frame)
                 self.buffer.append(formatFrame)
                 if len(self.buffer) > self.T:
@@ -103,21 +106,22 @@ class HandTracker:
                         # gesture detected
                         self.cursorTracker.click_cursor()
                         self.buffer.clear()
+                '''
                 # ==========
 
 
                 # extract and format coordinates for dataset
-                # coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
-                # self.formatData.format_coordinates(7, 1, coordinates)
+                coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
+                self.formatData.format_coordinates(1, 1, coordinates)
 
             # display frames in video
             cv2.imshow('frame', frame)
 
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                # output format coordinates
-                # self.formatData.get_coordinates()
+            if cv2.waitKey(1) & 0xFF == ord('q') or counter == 30:
+                # write coordinates in file
+                self.formatData.write_file('training/data/gesture/clickV2.csv')
                 break
+            counter += 1
 
         # free resources
         cap.release()
