@@ -6,6 +6,10 @@ class FormatData:
         self.coordinates = []
         self.index = 1
 
+        # exponential smoothing
+        self.prev_aligned = None
+        self.alpha = 0.7
+
     def extract_coordinates(self, frame):
         coordinate = []
         for fm in frame.hand_landmarks[0]:
@@ -87,7 +91,23 @@ class FormatData:
         # project the points onto the new basis
         aligned = scaled_matrix.dot(R)
 
-        return aligned.flatten().tolist()
+        # --- SMOOTHING ---
+        smoothed = self.smooth_coordinate(aligned)
+
+        # --- ZERO-CENTERING OF Z ---
+        z_mean = smoothed[:, 2].mean()
+        smoothed[:, 2] -= z_mean
+
+        return smoothed.flatten().tolist()
+
+    def smooth_coordinate(self, coordinate):
+        if self.prev_aligned is None:
+            smoothed = coordinate
+        else:
+            smoothed = self.alpha * coordinate + (1 - self.alpha) * self.prev_aligned
+        
+        self.prev_aligned = smoothed
+        return smoothed
 
     def format_coordinates(self, sequence, istrue, coordinates):
         formatCoordinate = [sequence ,self.index, istrue] + coordinates
