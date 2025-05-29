@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import pandas as pd
 
 class FormatData:
     def __init__(self):
@@ -113,6 +114,9 @@ class FormatData:
         formatCoordinate = [sequence ,self.index, istrue] + coordinates
         self.coordinates.append(formatCoordinate)
         self.index += 1
+
+    def not_format_coordinates(self, coordinates):
+        self.coordinates.append(coordinates)
 
     def get_coordinates(self):
         for coord in self.coordinates:

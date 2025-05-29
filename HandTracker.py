@@ -14,7 +14,7 @@ class HandTracker:
         self.modelFinger = load_model('model/gesture/click/gesture_lstmV2.h5')
         # number of frames processed by model
         self.T = 30
-        self.threshold = 0.6
+        self.threshold = 0.8
         self.buffer = []
 
         # instance the class for move cursor
@@ -110,16 +110,25 @@ class HandTracker:
                 # ==========
 
 
-                # extract and format coordinates for dataset
-                coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
-                self.formatData.format_coordinates(1, 1, coordinates)
+                # ========== extract and format coordinates for dataset
+
+                #coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
+                #self.formatData.format_coordinates(300, 0, coordinates)
+                #self.formatData.not_format_coordinates(coordinates)
+
+                # ==========
 
             # display frames in video
             cv2.imshow('frame', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q') or counter == 30:
-                # write coordinates in file
-                self.formatData.write_file('training/data/gesture/clickV2.csv')
+                # ========== write coordinates in file
+
+                #self.formatData.write_file('training/data/gesture/clickV2.csv')
+                #self.formatData.write_file('training/example.csv')
+
+                # ==========
+
                 break
             counter += 1
 
