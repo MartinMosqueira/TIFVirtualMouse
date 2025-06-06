@@ -2,19 +2,21 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+from playsound import playsound
 from tensorflow.keras.models import load_model
 from training.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
+from DrawHand import DrawHand
 
 class HandTracker:
     def __init__(self, modelHand):
         self.modelHand = modelHand
         self.latest_frame = None
 
-        self.modelFinger = load_model('model/gesture/click/gesture_lstmV2.h5')
+        self.modelFinger = load_model('model/gesture/click/gesture_lstmV4.h5')
         # number of frames processed by model
         self.T = 30
-        self.threshold = 0.8
+        self.threshold = 0.9
         self.buffer = []
 
         # instance the class for move cursor
@@ -22,6 +24,13 @@ class HandTracker:
 
         # instance the class for dataset
         self.formatData = FormatData()
+
+        # instance the class for draw hand
+        self.drawHand = DrawHand()
+
+        # draw gesture detected
+        self.highlight_until = 0.0
+        self.highlight_duration = 0.3
 
         # class for config model
         BaseOptions = mp.tasks.BaseOptions
@@ -44,13 +53,6 @@ class HandTracker:
 
     def output_frame(self, result, output_image: mp.Image, timestamp_ms: int):
         self.latest_frame = result
-
-    def draw_landmark(self, landmark, frame, width, height):
-        cx, cy = int(landmark.x * width), int(landmark.y * height)
-        cv2.circle(frame, (cx, cy), 5, (0, 255, 0), -1)
-
-    def finger_up(self):
-        pass
 
     def run(self):
         # 0:extern camera
@@ -86,11 +88,12 @@ class HandTracker:
                 fingerMiddleTip = self.latest_frame.hand_landmarks[0][12]
 
                 self.cursorTracker.move(fingerMiddleTip.x, fingerMiddleTip.y)
-                self.draw_landmark(fingerMiddleTip, frame, width, height)
+                self.drawHand.draw_landmark(fingerMiddleTip, frame, width, height, thickness=-1)
+                self.drawHand.draw_landmarks_finger_tips(self.latest_frame.hand_landmarks[0], frame, width, height)
 
                 # ========== TEST MODEL FINGER
-                '''
-                formatFrame = self.formatData.extract_scale_coordinates(self.latest_frame)
+
+                formatFrame = self.formatData.extract_align_coordinates(self.latest_frame)
                 self.buffer.append(formatFrame)
                 if len(self.buffer) > self.T:
                     self.buffer.pop(0)
@@ -104,10 +107,16 @@ class HandTracker:
 
                     if prob > self.threshold:
                         # gesture detected
-                        self.cursorTracker.click_cursor()
+                        self.cursorTracker.click_left_cursor()
                         self.buffer.clear()
-                '''
+                        self.highlight_until = time.time() + self.highlight_duration
+
                 # ==========
+
+                should_highlight = time.time() < self.highlight_until
+                if should_highlight:
+                    self.drawHand.draw_landmark_detected(frame, width, radius=15)
+                    playsound('sound/pop.mp3', block=False)
 
 
                 # ========== extract and format coordinates for dataset
@@ -121,10 +130,10 @@ class HandTracker:
             # display frames in video
             cv2.imshow('frame', frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q') or counter == 30:
+            if cv2.waitKey(1) & 0xFF == ord('q'): # or counter == 30
                 # ========== write coordinates in file
 
-                #self.formatData.write_file('training/data/gesture/clickV2.csv')
+                #self.formatData.write_file('training/data/gesture/gestures.csv')
                 #self.formatData.write_file('training/example.csv')
 
                 # ==========
