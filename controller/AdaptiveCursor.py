@@ -1,6 +1,7 @@
 import time
 import math
 import autopy
+import pyautogui
 import threading
 
 class AdaptiveCursor:
@@ -55,6 +56,14 @@ class AdaptiveCursor:
         self.prev_sx, self.prev_sy = sx, sy
         self.prev_t = now
 
-    def click_cursor(self):
+    def click_left_cursor(self):
         threading.Thread(target=autopy.mouse.click).start()
-        print("click cursor")
+
+    def click_right_cursor(self):
+        threading.Thread(target=autopy.mouse.click, args=(autopy.mouse.Button.RIGHT,)).start()
+
+    def scroll_down_cursor(self):
+        threading.Thread(target=pyautogui.scroll, args=(pyautogui.scroll(-5))).start()
+
+    def scroll_up_cursor(self):
+        threading.Thread(target=pyautogui.scroll, args=(pyautogui.scroll(5))).start()
