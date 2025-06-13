@@ -13,7 +13,7 @@ class HandTracker:
         self.modelHand = modelHand
         self.latest_frame = None
 
-        self.modelFinger = load_model('model/gesture/click/gesture_lstmV4.h5')
+        self.modelFinger = load_model('model/gesture/gesture_lstm_multiclass.h5')
         # number of frames processed by model
         self.T = 30
         self.threshold = 0.9
@@ -91,8 +91,8 @@ class HandTracker:
                 self.drawHand.draw_landmark(fingerMiddleTip, frame, width, height, thickness=-1)
                 self.drawHand.draw_landmarks_finger_tips(self.latest_frame.hand_landmarks[0], frame, width, height)
 
-                # ========== TEST MODEL FINGER
-
+                # ========== TEST MODEL CLICK GESTURE
+                '''
                 formatFrame = self.formatData.extract_align_coordinates(self.latest_frame)
                 self.buffer.append(formatFrame)
                 if len(self.buffer) > self.T:
@@ -110,6 +110,43 @@ class HandTracker:
                         self.cursorTracker.click_left_cursor()
                         self.buffer.clear()
                         self.highlight_until = time.time() + self.highlight_duration
+                '''
+                # ==========
+
+                # ========== TEST MODEL MULTICLASS GESTURE
+
+                formatFrame = self.formatData.extract_align_coordinates(self.latest_frame)
+                self.buffer.append(formatFrame)
+                if len(self.buffer) > self.T:
+                    self.buffer.pop(0)
+                    
+                if len(self.buffer) == self.T:
+                    #  convert array (T, 63) to numpy array and add batch dimension
+                    seq = np.array(self.buffer)[None, ...]   # shape (1, T, 63)
+                    # extract prediction
+                    prob = self.modelFinger.predict(seq, verbose=0)[0]
+                    predicted_class = np.argmax(prob)
+
+                    confidence = prob[predicted_class]
+                    if confidence > 0.7:
+                        if predicted_class == 1:
+                            # gesture detected click left
+                            self.cursorTracker.click_left_cursor()
+                            self.buffer.clear()
+                            self.highlight_until = time.time() + self.highlight_duration
+                            print('Click left')
+                        elif predicted_class == 2:
+                            # gesture detected click right
+                            self.cursorTracker.click_right_cursor()
+                            self.buffer.clear()
+                            self.highlight_until = time.time() + self.highlight_duration
+                            print('Click right')
+                        elif predicted_class == 3:
+                            # gesture detected scroll
+                            self.cursorTracker.scroll_down_cursor()
+                            self.buffer.clear()
+                            self.highlight_until = time.time() + self.highlight_duration
+                            print('Scroll down')
 
                 # ==========
 
