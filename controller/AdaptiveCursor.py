@@ -63,7 +63,7 @@ class AdaptiveCursor:
         threading.Thread(target=autopy.mouse.click, args=(autopy.mouse.Button.RIGHT,)).start()
 
     def scroll_down_cursor(self):
-        threading.Thread(target=pyautogui.scroll, args=(pyautogui.scroll(-5))).start()
+        threading.Thread(target=pyautogui.scroll, args=(-5,)).start()
 
     def scroll_up_cursor(self):
-        threading.Thread(target=pyautogui.scroll, args=(pyautogui.scroll(5))).start()
+        threading.Thread(target=pyautogui.scroll, args=(5,)).start()
