@@ -14,8 +14,9 @@ class HandTracker:
         self.modelHand = modelHand
         self.latest_frame = None
 
-        # config model
+        # config models
         self.modelGestures = load_model('model/gesture/gesture_lstm_multiclass.h5')
+        self.modelFinger = load_model('model/gesture/click/gesture_lstmV4.h5')
         self.T = 30
         self.threshold = 0.9
 
@@ -84,7 +85,6 @@ class HandTracker:
         # 1:intern camera
         cap = cv2.VideoCapture(0)
 
-        counter = 0
         while cap.isOpened():
             # capture the frames from the camera.
             success, frame = cap.read()
@@ -116,29 +116,7 @@ class HandTracker:
                 self.drawHand.draw_landmark(fingerMiddleTip, frame, width, height, thickness=-1)
                 self.drawHand.draw_landmarks_finger_tips(self.latest_frame.hand_landmarks[0], frame, width, height)
 
-                # ========== TEST MODEL CLICK GESTURE
-                '''
-                formatFrame = self.formatData.extract_align_coordinates(self.latest_frame)
-                self.buffer.append(formatFrame)
-                if len(self.buffer) > self.T:
-                    self.buffer.pop(0)
-
-                if len(self.buffer) == self.T:
-                    #  convert array (T, 63) to numpy array and add batch dimension
-                    seq = np.array(self.buffer)[None, ...]   # shape (1, T, 63)
-                    # extract prediction
-                    prob = float(self.modelFinger.predict(seq, verbose=0)[0,0])
-                    # print(f"Probabilidad de gesto: {prob:.3f}")
-
-                    if prob > self.threshold:
-                        # gesture detected
-                        self.cursorTracker.click_left_cursor()
-                        self.buffer.clear()
-                        self.highlight_until = time.time() + self.highlight_duration
-                '''
-                # ==========
-
-                # ========== TEST MODEL MULTICLASS GESTURE
+                # ========== TEST MODELS GESTURE
 
                 formatFrame = self.formatData.extract_align_coordinates(self.latest_frame)
                 self.buffer.append(formatFrame)
@@ -151,26 +129,33 @@ class HandTracker:
 
                     with self.seq_lock:
                         self.latest_sequence = seq
-
                     self.new_seq_event.set()
 
-                    if self.prob is not None and self.prediction is not None:
+                    # ============ BINARY MODEL PREDICTION ============
+                    prob_click = float(self.modelFinger.predict(seq, verbose=0)[0,0])
+                    if prob_click > self.threshold:
+                        playsound('sound/pop.mp3', block=False)
+                        self.cursorTracker.click_left_cursor()
+                        self.buffer.clear()
+                        self.highlight_until = time.time() + self.highlight_duration
+                        print('Click left')
+
+                    # ============ MULTICLASS MODEL PREDICTION ============
+                    elif self.prob is not None and self.prediction is not None:
 
                         confidence = self.prob[self.prediction]
                         if confidence > self.threshold:
                             if self.prediction == 1:
-                                # gesture detected click left
                                 self.cursorTracker.click_left_cursor()
                                 print('Click left')
                             elif self.prediction == 2:
-                                # gesture detected click right
                                 self.cursorTracker.click_right_cursor()
                                 print('Click right')
                             elif self.prediction == 3:
-                                # gesture detected scroll
                                 self.cursorTracker.scroll_down_cursor()
                                 print('Scroll down')
 
+                            playsound('sound/pop.mp3', block=False)
                             self.buffer.clear()
                             self.highlight_until = time.time() + self.highlight_duration
                             self.prediction = None
@@ -181,30 +166,12 @@ class HandTracker:
                 should_highlight = time.time() < self.highlight_until
                 if should_highlight:
                     self.drawHand.draw_landmark_detected(frame, width, radius=15)
-                    playsound('sound/pop.mp3', block=False)
-
-
-                # ========== extract and format coordinates for dataset
-
-                #coordinates = self.formatData.extract_align_coordinates(self.latest_frame)
-                #self.formatData.format_coordinates(300, 0, coordinates)
-                #self.formatData.not_format_coordinates(coordinates)
-
-                # ==========
 
             # display frames in video
             cv2.imshow('frame', frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'): # or counter == 30
-                # ========== write coordinates in file
-
-                #self.formatData.write_file('training/data/gesture/gestures.csv')
-                #self.formatData.write_file('training/example.csv')
-
-                # ==========
-
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            counter += 1
 
         # free resources
         cap.release()
