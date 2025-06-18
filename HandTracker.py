@@ -12,6 +12,9 @@ from DrawHand import DrawHand
 class HandTracker:
     def __init__(self, modelHand):
         self.modelHand = modelHand
+        self.enable_sound = True
+        self.show_camera = True
+        self.camera = 0
         self.latest_frame = None
 
         # config models
@@ -83,7 +86,7 @@ class HandTracker:
     def run(self):
         # 0:extern camera
         # 1:intern camera
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(int(self.camera))
 
         while cap.isOpened():
             # capture the frames from the camera.
@@ -134,7 +137,7 @@ class HandTracker:
                     # ============ BINARY MODEL PREDICTION ============
                     prob_click = float(self.modelFinger.predict(seq, verbose=0)[0,0])
                     if prob_click > self.threshold:
-                        playsound('sound/pop.mp3', block=False)
+                        if self.enable_sound: playsound('sound/pop.mp3', block=False)
                         self.cursorTracker.click_left_cursor()
                         self.buffer.clear()
                         self.highlight_until = time.time() + self.highlight_duration
@@ -155,7 +158,7 @@ class HandTracker:
                                 self.cursorTracker.scroll_down_cursor()
                                 print('Scroll down')
 
-                            playsound('sound/pop.mp3', block=False)
+                            if self.enable_sound: playsound('sound/pop.mp3', block=False)
                             self.buffer.clear()
                             self.highlight_until = time.time() + self.highlight_duration
                             self.prediction = None
