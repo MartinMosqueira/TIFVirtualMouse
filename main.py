@@ -44,10 +44,9 @@ if __name__ == "__main__":
         dpg.add_static_texture(width, height, data, tag="imagen_logo")
 
 
-    with dpg.window(label="Configuración", tag="main_window"):
+    with dpg.window(label="Configuration", tag="main_window"):
         with dpg.group(horizontal=True):
-            dpg.add_image("imagen_logo", width=70, height=80)
-        dpg.add_spacer(height=7)
+            dpg.add_image("imagen_logo", width=80, height=70)
         dpg.add_text("CONFIGURATION")
         dpg.add_spacer(height=7)
         dpg.add_checkbox(label="Sound On", default_value=True, callback=toggle_sound)
@@ -75,7 +74,7 @@ if __name__ == "__main__":
             dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 10, 5, category=dpg.mvThemeCat_Core)
 
 
-    dpg.create_viewport(title="Hand Controller", width=500, height=350, resizable=False, vsync=True)
+    dpg.create_viewport(title="Visionic", width=500, height=350, resizable=False, vsync=True)
     dpg.bind_theme(global_theme)
     dpg.bind_font("custom_font")
     dpg.setup_dearpygui()
