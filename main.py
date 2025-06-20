@@ -1,3 +1,6 @@
+# Licensed under NC-PE - For personal and educational use only.
+# Copyright © 2025 Martin Mosqueira. All rights reserved.
+
 import dearpygui.dearpygui as dpg
 from HandTracker import HandTracker
 
