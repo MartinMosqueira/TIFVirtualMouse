@@ -1,4 +1,4 @@
-<img src="mainLogo.png" alt="TIF Virtual Mouse" width="100"/>
+<img src="assets/icons/mainLogo.png" alt="TIF Virtual Mouse" width="100"/>
 
 # Visionic
 

@@ -158,7 +158,7 @@ class HandTracker:
                                 self.cursorTracker.scroll_down_cursor()
                                 print('Scroll down')
 
-                            if self.enable_sound: playsound('sound/pop.mp3', block=False)
+                            if self.enable_sound: playsound('assets/sound/pop.mp3', block=False)
                             self.buffer.clear()
                             self.highlight_until = time.time() + self.highlight_duration
                             self.prediction = None

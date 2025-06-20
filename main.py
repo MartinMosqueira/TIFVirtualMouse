@@ -37,10 +37,10 @@ if __name__ == "__main__":
 
     dpg.set_global_font_scale(0.8)
     with dpg.font_registry():
-        my_font = dpg.add_font("fonts/MotivaSansBold.woff.ttf", 22, tag="custom_font")
+        my_font = dpg.add_font("assets/fonts/MotivaSansBold.woff.ttf", 22, tag="custom_font")
 
     with dpg.texture_registry(show=False):
-        width, height, channels, data = dpg.load_image("logo.png")
+        width, height, channels, data = dpg.load_image("assets/icons/logo.png")
         dpg.add_static_texture(width, height, data, tag="imagen_logo")
 
 
