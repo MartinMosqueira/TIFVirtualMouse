@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 from training.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
 from DrawHand import DrawHand
+from ResourcePaths import resource_path
 
 class HandTracker:
     def __init__(self, modelHand):
@@ -18,8 +19,8 @@ class HandTracker:
         self.latest_frame = None
 
         # config models
-        self.modelGestures = load_model('model/gesture/gesture_lstm_multiclass.h5')
-        self.modelFinger = load_model('model/gesture/click/gesture_lstmV4.h5')
+        self.modelGestures = load_model(resource_path('model/gesture/gesture_lstm_multiclass.h5'))
+        self.modelFinger = load_model(resource_path('model/gesture/click/gesture_lstmV4.h5'))
         self.T = 30
         self.threshold = 0.9
 
@@ -137,7 +138,7 @@ class HandTracker:
                     # ============ BINARY MODEL PREDICTION ============
                     prob_click = float(self.modelFinger.predict(seq, verbose=0)[0,0])
                     if prob_click > self.threshold:
-                        if self.enable_sound: playsound('sound/pop.mp3', block=False)
+                        if self.enable_sound: playsound(resource_path('assets/sound/pop.mp3'), block=False)
                         self.cursorTracker.click_left_cursor()
                         self.buffer.clear()
                         self.highlight_until = time.time() + self.highlight_duration
@@ -158,7 +159,7 @@ class HandTracker:
                                 self.cursorTracker.scroll_down_cursor()
                                 print('Scroll down')
 
-                            if self.enable_sound: playsound('assets/sound/pop.mp3', block=False)
+                            if self.enable_sound: playsound(resource_path('assets/sound/pop.mp3'), block=False)
                             self.buffer.clear()
                             self.highlight_until = time.time() + self.highlight_duration
                             self.prediction = None
@@ -171,7 +172,7 @@ class HandTracker:
                     self.drawHand.draw_landmark_detected(frame, width, radius=15)
 
             # display frames in video
-            cv2.imshow('frame', frame)
+            cv2.imshow('Visionic', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
