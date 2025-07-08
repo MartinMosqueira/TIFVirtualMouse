@@ -1,3 +1,9 @@
+#************************** Class AdaptiveCursor **************************
+#
+#   Implements an advanced adaptive cursor control system that dynamically
+#   adjusts smoothing and sensitivity parameters based on frame rate and
+#   user speed. Extends functionality with methods for clicking and scrolling.
+#
 import time
 import math
 import autopy

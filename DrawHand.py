@@ -1,3 +1,7 @@
+#************************** Class DrawHand **************************
+#
+#   Implements everything related to frame drawing
+#
 import cv2
 
 class DrawHand:

@@ -1,6 +1,9 @@
+#************************** Class FormatData **************************
+#
+#   Implements everything related to data normalization.
+#
 import math
 import numpy as np
-import pandas as pd
 
 class FormatData:
     def __init__(self):

@@ -1,3 +1,10 @@
+#************************** Class CursorTracker **************************
+#
+#   Implements a basic cursor control system using exponential smoothing
+#   to stabilize movement based on frame rate. Includes essential methods
+#   for clicking and scrolling, focusing on smooth and responsive cursor
+#   movement for general use cases.
+#
 import autopy
 import threading
 
