@@ -1,10 +1,9 @@
 import cv2
-import mediapipe as mp
 import time
 import numpy as np
-import threading
+import mediapipe as mp
+import tensorflow as tf
 from playsound import playsound
-from tensorflow.keras.models import load_model
 from training.FormatData import FormatData
 from controller.AdaptiveCursor import AdaptiveCursor
 from DrawHand import DrawHand
@@ -13,38 +12,32 @@ from ResourcePaths import resource_path
 class HandTracker:
     def __init__(self, modelHand):
         self.modelHand = modelHand
+        self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
+        self.formatData = FormatData()
+        self.drawHand = DrawHand()
+
+        # config app
         self.enable_sound = True
         self.show_camera = True
         self.camera = 0
+
+        # manage frames
+        self.buffer = []
         self.latest_frame = None
 
-        # config models
-        self.modelGestures = load_model(resource_path('model/gesture/gesture_lstm_multiclass.h5'))
-        self.modelFinger = load_model(resource_path('model/gesture/click/gesture_lstmV4.h5'))
+        # config models gesture
+        self.modelGestures = tf.lite.Interpreter(resource_path('model/gesture/gesture_lstm_multiclass.tflite'))
+        self.modelFinger = tf.lite.Interpreter(resource_path('model/gesture/gesture_lstm.tflite'))
+        self.modelGestures.allocate_tensors()
+        self.modelFinger.allocate_tensors()
+        self.input_modelGestures = self.modelGestures.get_input_details()[0]
+        self.input_modelFinger = self.modelFinger.get_input_details()[0]
+        self.output_modelGestures = self.modelGestures.get_output_details()[0]
+        self.output_modelFinger = self.modelFinger.get_output_details()[0]
         self.T = 30
         self.threshold = 0.9
 
-        # manage frames for prediction of model
-        self.buffer = []
-        self.latest_sequence = None
-        self.seq_lock = threading.Lock()
-        self.new_seq_event = threading.Event()
-
-        # thread for prediction of model
-        threading.Thread(target=self.buffer_prediction, daemon=True).start()
-
-        # instance the class for move cursor
-        self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
-
-        # instance the class for dataset
-        self.formatData = FormatData()
-
-        # instance the class for draw hand
-        self.drawHand = DrawHand()
-
         # state of gesture
-        self.prediction = None
-        self.prob = None
         self.highlight_until = 0.0
         self.highlight_duration = 0.3
 
@@ -69,20 +62,6 @@ class HandTracker:
 
     def output_frame(self, result, output_image: mp.Image, timestamp_ms: int):
         self.latest_frame = result
-
-    def buffer_prediction(self):
-        while True:
-            self.new_seq_event.wait()
-
-            with self.seq_lock:
-                sequence = self.latest_sequence
-                self.latest_sequence = None
-            self.new_seq_event.clear()
-
-            # extract prediction
-            self.prob = self.modelGestures.predict(sequence, verbose=0)[0]
-            self.prediction =  np.argmax(self.prob)
-
 
     def run(self):
         # 0:extern camera
@@ -131,12 +110,12 @@ class HandTracker:
                     #  convert array (T, 63) to numpy array and add batch dimension
                     seq = np.array(self.buffer)[None, ...]   # shape (1, T, 63)
 
-                    with self.seq_lock:
-                        self.latest_sequence = seq
-                    self.new_seq_event.set()
-
                     # ============ BINARY MODEL PREDICTION ============
-                    prob_click = float(self.modelFinger.predict(seq, verbose=0)[0,0])
+                    convertFrames = seq.astype(np.float32)
+                    self.modelFinger.set_tensor(self.input_modelFinger['index'], convertFrames)
+                    self.modelFinger.invoke()
+                    output_modelFinger = self.modelFinger.get_tensor(self.output_modelFinger['index'])
+                    prob_click = float(output_modelFinger[0, 0])
                     if prob_click > self.threshold:
                         if self.enable_sound: playsound(resource_path('assets/sound/pop.mp3'), block=False)
                         self.cursorTracker.click_left_cursor()
@@ -145,25 +124,27 @@ class HandTracker:
                         print('Click left')
 
                     # ============ MULTICLASS MODEL PREDICTION ============
-                    elif self.prob is not None and self.prediction is not None:
+                    else:
+                        self.modelGestures.set_tensor(self.input_modelGestures['index'], convertFrames)
+                        self.modelGestures.invoke()
+                        output_modelGestures = self.modelGestures.get_tensor(self.output_modelGestures['index'])
+                        prediction = int(np.argmax(output_modelGestures))
+                        confidence = float(np.max(output_modelGestures))
 
-                        confidence = self.prob[self.prediction]
                         if confidence > self.threshold:
-                            if self.prediction == 1:
+                            if prediction == 1:
                                 self.cursorTracker.click_left_cursor()
                                 print('Click left')
-                            elif self.prediction == 2:
+                            elif prediction == 2:
                                 self.cursorTracker.click_right_cursor()
                                 print('Click right')
-                            elif self.prediction == 3:
+                            elif prediction == 3:
                                 self.cursorTracker.scroll_down_cursor()
                                 print('Scroll down')
 
                             if self.enable_sound: playsound(resource_path('assets/sound/pop.mp3'), block=False)
                             self.buffer.clear()
                             self.highlight_until = time.time() + self.highlight_duration
-                            self.prediction = None
-                            self.prob = None
 
                 # ==========
 
