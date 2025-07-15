@@ -52,34 +52,49 @@ if __name__ == "__main__":
     with dpg.window(label="Configuration", tag="main_window"):
         with dpg.group(horizontal=True):
             dpg.add_image("imagen_logo", width=80, height=70)
-        dpg.add_text("CONFIGURATION")
+        dpg.add_text("CONFIGURACIÓN")
         dpg.add_spacer(height=7)
         with dpg.group(horizontal=True):
-            dpg.add_text("Sound On")
+            dpg.add_text(
+                "Activar sonido",
+                tag="slider_sound",
+            )
             dpg.add_checkbox(default_value=True, callback=toggle_sound)
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
-            dpg.add_text("Camera On")
+            dpg.add_text(
+                "Mostrar captura",
+                tag="slider_caption"
+            )
             dpg.add_checkbox(default_value=True, callback=toggle_camera)
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
-            dpg.add_text("Camera")
+            dpg.add_text("Camara")
             dpg.add_combo(["0", "1"] , width=120, default_value = "0", callback=combo_camera)
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
-            dpg.add_text("Smoothness")  
+            dpg.add_text(
+                "Suavidad",
+                tag="slider_smoothness",
+            )
             dpg.add_slider_float(
-                default_value=3.0, 
-                min_value=0.1, max_value=5, 
-                format="%.1f", 
+                default_value=3.0,
+                min_value=0.1, max_value=5,
+                format="%.1f",
                 callback=slider_sensibility
             )
+        with dpg.tooltip("slider_smoothness"):
+            dpg.add_text("Bajo: Cursor muy suave\nAlto: Cursor más reactivo")
+        with dpg.tooltip("slider_sound"):
+            dpg.add_text("Sonido cuando el gesto es detectado")
+        with dpg.tooltip("slider_caption"):
+            dpg.add_text("Ventana de captura de la mano")
         dpg.add_spacer(height=60)
         with dpg.group(horizontal=True):
             dpg.add_spacer(width=100)
-            dpg.add_button(label="Start", width=100, callback=on_start)
+            dpg.add_button(label="Iniciar", width=100, callback=on_start)
             dpg.add_spacer(width=20)
-            dpg.add_button(label="Exit",  width=100, callback=lambda s,a: dpg.stop_dearpygui())
+            dpg.add_button(label="Salir",  width=100, callback=lambda s,a: dpg.stop_dearpygui())
             dpg.add_spacer(width=100)
 
     with dpg.theme() as global_theme:
