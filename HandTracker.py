@@ -10,16 +10,17 @@ from DrawHand import DrawHand
 from ResourcePaths import resource_path
 
 class HandTracker:
-    def __init__(self, modelHand):
-        self.modelHand = modelHand
-        self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=3.0)
-        self.formatData = FormatData()
-        self.drawHand = DrawHand()
-
+    def __init__(self, modelHand, smoothness):
         # config app
         self.enable_sound = True
         self.show_camera = True
         self.camera = 0
+        self.smoothness = smoothness
+
+        self.modelHand = modelHand
+        self.cursorTracker = AdaptiveCursor(alpha_min=0.2, alpha_max=0.9, speed_sens=self.smoothness)
+        self.formatData = FormatData()
+        self.drawHand = DrawHand()
 
         # manage frames
         self.buffer = []

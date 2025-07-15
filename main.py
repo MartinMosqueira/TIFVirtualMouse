@@ -8,7 +8,8 @@ from ResourcePaths import resource_path
 config = {
     "play_sound": True,
     "show_camera": True,
-    "camera": "0"  # 0: extern camera, 1: intern camera
+    "camera": "0",  # 0: extern camera, 1: intern camera
+    "smoothness": 3.0
 }
 start_requested = False
 
@@ -21,13 +22,16 @@ def toggle_camera(sender):
 def combo_camera(sender):
     config["camera"] = dpg.get_value(sender)
 
+def slider_sensibility(sender):
+    config["smoothness"] = dpg.get_value(sender)
+
 def on_start(sender, app_data):
     global start_requested
     start_requested = True
     dpg.stop_dearpygui()
 
 def start_tracker():
-    tracker = HandTracker(resource_path("model/hand/hand_landmarker.task"))
+    tracker = HandTracker(resource_path("model/hand/hand_landmarker.task"), config["smoothness"])
     tracker.enable_sound = config["play_sound"]
     tracker.show_camera = config["show_camera"]
     tracker.camera = config["camera"]
@@ -50,11 +54,26 @@ if __name__ == "__main__":
             dpg.add_image("imagen_logo", width=80, height=70)
         dpg.add_text("CONFIGURATION")
         dpg.add_spacer(height=7)
-        dpg.add_checkbox(label="Sound On", default_value=True, callback=toggle_sound)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Sound On")
+            dpg.add_checkbox(default_value=True, callback=toggle_sound)
         dpg.add_spacer(height=5)
-        dpg.add_checkbox(label="Camera On", default_value=True, callback=toggle_camera)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Camera On")
+            dpg.add_checkbox(default_value=True, callback=toggle_camera)
         dpg.add_spacer(height=5)
-        dpg.add_combo(["0", "1"] , label="Camera", width=120, default_value = "0", callback=combo_camera)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Camera")
+            dpg.add_combo(["0", "1"] , width=120, default_value = "0", callback=combo_camera)
+        dpg.add_spacer(height=5)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Smoothness")  
+            dpg.add_slider_float(
+                default_value=3.0, 
+                min_value=0.1, max_value=5, 
+                format="%.1f", 
+                callback=slider_sensibility
+            )
         dpg.add_spacer(height=60)
         with dpg.group(horizontal=True):
             dpg.add_spacer(width=100)
@@ -75,7 +94,7 @@ if __name__ == "__main__":
             dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 10, 5, category=dpg.mvThemeCat_Core)
 
 
-    dpg.create_viewport(title="Visionic", width=500, height=350, resizable=False, vsync=True)
+    dpg.create_viewport(title="Visionic", width=500, height=360, resizable=False, vsync=True)
     dpg.bind_theme(global_theme)
     dpg.bind_font("custom_font")
     dpg.setup_dearpygui()
