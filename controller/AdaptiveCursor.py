@@ -11,7 +11,7 @@ import pyautogui
 import threading
 
 class AdaptiveCursor:
-    def __init__(self, alpha_min, alpha_max, speed_sens, amplification = 1):
+    def __init__(self, alpha_min, alpha_max, speed_sens, amplification):
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max
         self.speed_sens = speed_sens

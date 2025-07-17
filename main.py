@@ -9,7 +9,8 @@ config = {
     "play_sound": True,
     "show_camera": True,
     "camera": "0",  # 0: extern camera, 1: intern camera
-    "smoothness": 3.0
+    "smoothness": 3.0,
+    "amplification": 1.5
 }
 start_requested = False
 
@@ -25,13 +26,20 @@ def combo_camera(sender):
 def slider_sensibility(sender):
     config["smoothness"] = dpg.get_value(sender)
 
+def slider_amplification(sender):
+    config["amplification"] = dpg.get_value(sender)
+
 def on_start(sender, app_data):
     global start_requested
     start_requested = True
     dpg.stop_dearpygui()
 
 def start_tracker():
-    tracker = HandTracker(resource_path("model/hand/hand_landmarker.task"), config["smoothness"])
+    tracker = HandTracker(
+        resource_path("model/hand/hand_landmarker.task"),
+        config["smoothness"],
+        config["amplification"]
+    )
     tracker.enable_sound = config["play_sound"]
     tracker.show_camera = config["show_camera"]
     tracker.camera = config["camera"]
@@ -57,14 +65,14 @@ if __name__ == "__main__":
         with dpg.group(horizontal=True):
             dpg.add_text(
                 "Activar sonido",
-                tag="slider_sound",
+                tag="sound",
             )
             dpg.add_checkbox(default_value=True, callback=toggle_sound)
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
             dpg.add_text(
                 "Mostrar captura",
-                tag="slider_caption"
+                tag="caption"
             )
             dpg.add_checkbox(default_value=True, callback=toggle_camera)
         dpg.add_spacer(height=5)
@@ -75,7 +83,7 @@ if __name__ == "__main__":
         with dpg.group(horizontal=True):
             dpg.add_text(
                 "Suavidad",
-                tag="slider_smoothness",
+                tag="smoothness",
             )
             dpg.add_slider_float(
                 default_value=3.0,
@@ -83,11 +91,25 @@ if __name__ == "__main__":
                 format="%.1f",
                 callback=slider_sensibility
             )
-        with dpg.tooltip("slider_smoothness"):
+        dpg.add_spacer(height=5)
+        with dpg.group(horizontal=True):
+            dpg.add_text(
+                "Amplificar",
+                tag="amplification",
+            )
+            dpg.add_slider_float(
+                default_value=1.5,
+                min_value=0.5, max_value=4.0,
+                format="%.1f",
+                callback=slider_amplification
+            )
+        with dpg.tooltip("amplification"):
+            dpg.add_text("Amplitud de alcance del cursor")
+        with dpg.tooltip("smoothness"):
             dpg.add_text("Bajo: Cursor muy suave\nAlto: Cursor más reactivo")
-        with dpg.tooltip("slider_sound"):
+        with dpg.tooltip("sound"):
             dpg.add_text("Sonido cuando el gesto es detectado")
-        with dpg.tooltip("slider_caption"):
+        with dpg.tooltip("caption"):
             dpg.add_text("Ventana de captura de la mano")
         dpg.add_spacer(height=60)
         with dpg.group(horizontal=True):
@@ -109,7 +131,7 @@ if __name__ == "__main__":
             dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 10, 5, category=dpg.mvThemeCat_Core)
 
 
-    dpg.create_viewport(title="Visionic", width=500, height=360, resizable=False, vsync=True)
+    dpg.create_viewport(title="Visionic", width=500, height=400, resizable=False, vsync=True)
     dpg.bind_theme(global_theme)
     dpg.bind_font("custom_font")
     dpg.setup_dearpygui()
