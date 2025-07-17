@@ -11,13 +11,17 @@ import pyautogui
 import threading
 
 class AdaptiveCursor:
-    def __init__(self, alpha_min, alpha_max, speed_sens):
+    def __init__(self, alpha_min, alpha_max, speed_sens, amplification = 1):
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max
         self.speed_sens = speed_sens
+        self.amplification = amplification
         # get screen size
         self.screen_w, self.screen_h = autopy.screen.size()
-
+        # center reference
+        self.center_x = 0.5
+        self.center_y = 0.5
+        # previous values
         self.prev_x = self.prev_y = None
         self.prev_t = None
         self.prev_sx = self.prev_sy = None
@@ -27,18 +31,34 @@ class AdaptiveCursor:
         if not (0 <= x <= 1 and 0 <= y <= 1):
             return
 
+        # ======== Expand range of motion
+
+        x_from_center = x - self.center_x
+        y_from_center = y - self.center_y
+
+        amplified_factor_x = x_from_center * self.amplification
+        amplified_factor_y = y_from_center * self.amplification
+
+        amplified_x = self.center_x + amplified_factor_x
+        amplified_y = self.center_y + amplified_factor_y
+
+        amplified_x = max(0, min(1, amplified_x))
+        amplified_y = max(0, min(1, amplified_y))
+
+        # ========
+
         now = time.time()
         if self.prev_x is None or self.prev_y is None:
             # init position
-            self.prev_x, self.prev_y = x, y
+            self.prev_x, self.prev_y = amplified_x, amplified_y
             self.prev_t = now
-            self.prev_sx, self.prev_sy = x, y
-            autopy.mouse.move(int(x*self.screen_w), int(y*self.screen_h))
+            self.prev_sx, self.prev_sy = amplified_x, amplified_y
+            autopy.mouse.move(int(amplified_x*self.screen_w), int(amplified_y*self.screen_h))
             return
 
         # calculate the exact frame rate
         dt = now - self.prev_t
-        dx, dy = x - self.prev_x, y - self.prev_y
+        dx, dy = amplified_x - self.prev_x, amplified_y - self.prev_y
         dist = math.hypot(dx, dy)
         speed = dist / dt if dt > 0 else 0
 
@@ -49,8 +69,8 @@ class AdaptiveCursor:
         alpha = self.alpha_min + (self.alpha_max - self.alpha_min) * frac
 
         # EMA filter
-        sx = alpha * x + (1 - alpha) * self.prev_sx
-        sy = alpha * y + (1 - alpha) * self.prev_sy
+        sx = alpha * amplified_x + (1 - alpha) * self.prev_sx
+        sy = alpha * amplified_y + (1 - alpha) * self.prev_sy
 
         # move cursor
         screen_x = int(sx * self.screen_w)
@@ -58,7 +78,7 @@ class AdaptiveCursor:
         autopy.mouse.move(screen_x, screen_y)
 
         # update values
-        self.prev_x, self.prev_y = x, y
+        self.prev_x, self.prev_y = amplified_x, amplified_y
         self.prev_sx, self.prev_sy = sx, sy
         self.prev_t = now
 
