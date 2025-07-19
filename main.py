@@ -4,6 +4,7 @@
 import dearpygui.dearpygui as dpg
 from HandTracker import HandTracker
 from ResourcePaths import resource_path
+from controller.AdaptiveCursor import AdaptiveCursor
 
 config = {
     "play_sound": True,
@@ -14,36 +15,50 @@ config = {
 }
 start_requested = False
 
+
 def toggle_sound(sender):
     config["play_sound"] = dpg.get_value(sender)
+
 
 def toggle_camera(sender):
     config["show_camera"] = dpg.get_value(sender)
 
+
 def combo_camera(sender):
     config["camera"] = dpg.get_value(sender)
+
 
 def slider_sensibility(sender):
     config["smoothness"] = dpg.get_value(sender)
 
+
 def slider_amplification(sender):
     config["amplification"] = dpg.get_value(sender)
+
 
 def on_start(sender, app_data):
     global start_requested
     start_requested = True
     dpg.stop_dearpygui()
 
+
 def start_tracker():
+    cursor = AdaptiveCursor(
+        alpha_min=0.2,
+        alpha_max=0.9,
+        speed_sens=config["smoothness"],
+        amplification=config["amplification"]
+    )
+
     tracker = HandTracker(
-        resource_path("model/hand/hand_landmarker.task"),
-        config["smoothness"],
-        config["amplification"]
+        model_hand=resource_path("model/hand/hand_landmarker.task"),
+        cursor_controller=cursor
     )
     tracker.enable_sound = config["play_sound"]
     tracker.show_camera = config["show_camera"]
     tracker.camera = config["camera"]
     tracker.run()
+
 
 if __name__ == "__main__":
     dpg.create_context()
@@ -55,7 +70,6 @@ if __name__ == "__main__":
     with dpg.texture_registry(show=False):
         width, height, channels, data = dpg.load_image(resource_path("assets/icons/logo.png"))
         dpg.add_static_texture(width, height, data, tag="imagen_logo")
-
 
     with dpg.window(label="Configuration", tag="main_window"):
         with dpg.group(horizontal=True):
@@ -78,7 +92,7 @@ if __name__ == "__main__":
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
             dpg.add_text("Camara")
-            dpg.add_combo(["0", "1"] , width=120, default_value = "0", callback=combo_camera)
+            dpg.add_combo(["0", "1"], width=120, default_value="0", callback=combo_camera)
         dpg.add_spacer(height=5)
         with dpg.group(horizontal=True):
             dpg.add_text(
@@ -116,7 +130,7 @@ if __name__ == "__main__":
             dpg.add_spacer(width=100)
             dpg.add_button(label="Iniciar", width=100, callback=on_start)
             dpg.add_spacer(width=20)
-            dpg.add_button(label="Salir",  width=100, callback=lambda s,a: dpg.stop_dearpygui())
+            dpg.add_button(label="Salir", width=100, callback=lambda s, a: dpg.stop_dearpygui())
             dpg.add_spacer(width=100)
 
     with dpg.theme() as global_theme:
@@ -129,7 +143,6 @@ if __name__ == "__main__":
             dpg.add_theme_color(dpg.mvThemeCol_Text, (34, 50, 45), category=dpg.mvThemeCat_Core)
             dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 5, category=dpg.mvThemeCat_Core)
             dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 10, 5, category=dpg.mvThemeCat_Core)
-
 
     dpg.create_viewport(title="Visionic", width=500, height=400, resizable=False, vsync=True)
     dpg.bind_theme(global_theme)

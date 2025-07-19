@@ -1,4 +1,4 @@
-#************************** Class AdaptiveCursor **************************
+# ************************** Class AdaptiveCursor **************************
 #
 #   Implements an advanced adaptive cursor control system that dynamically
 #   adjusts smoothing and sensitivity parameters based on frame rate and
@@ -9,6 +9,7 @@ import math
 import autopy
 import pyautogui
 import threading
+
 
 class AdaptiveCursor:
     def __init__(self, alpha_min, alpha_max, speed_sens, amplification):
@@ -53,7 +54,7 @@ class AdaptiveCursor:
             self.prev_x, self.prev_y = amplified_x, amplified_y
             self.prev_t = now
             self.prev_sx, self.prev_sy = amplified_x, amplified_y
-            autopy.mouse.move(int(amplified_x*self.screen_w), int(amplified_y*self.screen_h))
+            autopy.mouse.move(int(amplified_x * self.screen_w), int(amplified_y * self.screen_h))
             return
 
         # calculate the exact frame rate
