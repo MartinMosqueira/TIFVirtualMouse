@@ -9,9 +9,10 @@ import math
 import autopy
 import pyautogui
 import threading
+from controller.CursorInterface import CursorInterface
 
 
-class AdaptiveCursor:
+class AdaptiveCursor(CursorInterface):
     def __init__(self, alpha_min, alpha_max, speed_sens, amplification):
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max

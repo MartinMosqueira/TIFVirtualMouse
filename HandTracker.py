@@ -7,10 +7,11 @@ from playsound import playsound
 from training.FormatData import FormatData
 from DrawHand import DrawHand
 from ResourcePaths import resource_path
+from controller.CursorInterface import CursorInterface
 
 
 class HandTracker:
-    def __init__(self, model_hand, cursor_controller):
+    def __init__(self, model_hand, cursor_controller: CursorInterface):
         # config app
         self.enable_sound = True
         self.show_camera = True

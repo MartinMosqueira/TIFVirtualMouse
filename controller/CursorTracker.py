@@ -6,10 +6,12 @@
 #   movement for general use cases.
 #
 import autopy
+import pyautogui
 import threading
+from controller.CursorInterface import CursorInterface
 
 
-class CursorTracker:
+class CursorTracker(CursorInterface):
     def __init__(self, smoothing, invert=False):
         # get screen size
         self.screen_width, self.screen_height = autopy.screen.size()
@@ -19,7 +21,7 @@ class CursorTracker:
         self.smoothing = smoothing
         self.invert = invert
 
-    def move_cursor(self, x, y):
+    def move(self, x, y):
         # off-screen detection
         if not (0 <= x <= 1 and 0 <= y <= 1):
             return
@@ -49,6 +51,14 @@ class CursorTracker:
 
         autopy.mouse.move(screen_x, screen_y)
 
-    def click_cursor(self):
+    def click_left_cursor(self):
         threading.Thread(target=autopy.mouse.click).start()
-        print("click cursor")
+
+    def click_right_cursor(self):
+        threading.Thread(target=autopy.mouse.click, args=(autopy.mouse.Button.RIGHT,)).start()
+
+    def scroll_down_cursor(self):
+        threading.Thread(target=pyautogui.scroll, args=(-5,)).start()
+
+    def scroll_up_cursor(self):
+        threading.Thread(target=pyautogui.scroll, args=(5,)).start()
