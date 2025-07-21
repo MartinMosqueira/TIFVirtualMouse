@@ -55,7 +55,7 @@ class AdaptiveCursor(CursorInterface):
             self.prev_x, self.prev_y = amplified_x, amplified_y
             self.prev_t = now
             self.prev_sx, self.prev_sy = amplified_x, amplified_y
-            autopy.mouse.move(int(amplified_x * self.screen_w), int(amplified_y * self.screen_h))
+            autopy.mouse.move(int(amplified_x * (self.screen_w - 1)), int(amplified_y * (self.screen_h - 1)))
             return
 
         # calculate the exact frame rate
@@ -75,8 +75,8 @@ class AdaptiveCursor(CursorInterface):
         sy = alpha * amplified_y + (1 - alpha) * self.prev_sy
 
         # move cursor
-        screen_x = int(sx * self.screen_w)
-        screen_y = int(sy * self.screen_h)
+        screen_x = min(int(sx * self.screen_w), self.screen_w - 1)
+        screen_y = min(int(sy * self.screen_h), self.screen_h - 1)
         autopy.mouse.move(screen_x, screen_y)
 
         # update values
