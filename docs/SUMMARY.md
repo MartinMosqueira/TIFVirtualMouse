@@ -1,15 +1,15 @@
 # Table of contents
 
-* [Welcome](README.md)
+* [Bienvenido](README.md)
 
-## Getting Started
+## Empezando
 
-* [Quickstart](getting-started/quickstart.md)
-* [Publish your docs](getting-started/publish-your-docs.md)
+* [Lo básico](empezando/basico.md)
+* [Inicio rápido](empezando/inicio-rapido.md)
 
 ## Basics
 
-* [Editor](basics/editor.md)
+* [Estructura del proyecto](basics/estructura.md)
 * [Markdown](basics/markdown.md)
 * [Images & media](basics/images-and-media.md)
 * [Interactive blocks](basics/interactive-blocks.md)

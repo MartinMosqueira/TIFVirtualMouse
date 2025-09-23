@@ -1,5 +1,5 @@
 ---
-icon: pen-to-square
+icon: folder-tree
 layout:
   width: default
   title:
@@ -16,7 +16,7 @@ layout:
     visible: true
 ---
 
-# Editor
+# Estructura del proyecto
 
 GitBook has a powerful block-based editor that allows you to seamlessly create, update, and enhance your content.
 
