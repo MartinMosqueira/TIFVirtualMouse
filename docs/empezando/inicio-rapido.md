@@ -18,8 +18,39 @@ layout:
 
 # Inicio rápido
 
-Once you’ve finished writing, editing, or importing your content, you can publish your work to the web as a docs site. Once published, your site will be accessible online only to your selected audience.
+Los siguientes pasos son para instalar Visionic en su ordenador.
 
-You can publish your site and find related settings from your docs site's homepage.
+### Modo desarrollo
 
-<figure><img src="https://gitbookio.github.io/onboarding-template-images/publish-hero.png" alt=""><figcaption></figcaption></figure>
+{% hint style="info" %}
+Asegurarse de tener instaldo en su ordenador Git y Python 3.12.8
+{% endhint %}
+
+1. Clonar el repositorio:
+
+```sh
+git clone https://github.com/MartinMosqueira/TIFVirtualMouse.git
+cd TIFVirtualMouse
+```
+
+2. Crear y activar un entorno virtual:
+
+```sh
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+```
+
+3. Instalar dependencias dentro del entorno:
+
+```sh
+pip install -r requirements.txt
+```
+
+4. Ejecutar aplicación:
+
+```sh
+python main.py
+```
+
+### Modo usuario
+
