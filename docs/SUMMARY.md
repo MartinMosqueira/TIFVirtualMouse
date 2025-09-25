@@ -10,7 +10,7 @@
 ## Basics
 
 * [Estructura del proyecto](basics/estructura.md)
-* [Markdown](basics/markdown.md)
+* [Dependencias](basics/markdown.md)
 * [Images & media](basics/images-and-media.md)
 * [Interactive blocks](basics/interactive-blocks.md)
 * [Integrations](basics/integrations.md)

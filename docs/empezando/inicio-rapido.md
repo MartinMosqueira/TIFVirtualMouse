@@ -23,7 +23,7 @@ Los siguientes pasos son para instalar Visionic en su ordenador.
 ### Modo desarrollo
 
 {% hint style="info" %}
-Asegurarse de tener instaldo en su ordenador Git y Python 3.12.8
+Asegurarse de tener instalado en su ordenador Git y Python 3.12.8
 {% endhint %}
 
 1. Clonar el repositorio:

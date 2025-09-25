@@ -1,5 +1,5 @@
 ---
-icon: markdown
+icon: list-check
 layout:
   width: default
   title:
@@ -16,25 +16,52 @@ layout:
     visible: true
 ---
 
-# Markdown
+# Dependencias
 
-GitBook supports many different types of content, and is backed by Markdown — meaning you can copy and paste any existing Markdown files directly into the editor!
+A continuación todas las dependencias utilizadas en el desarrollo de Visionic.
 
-<figure><img src="https://gitbookio.github.io/onboarding-template-images/markdown-hero.png" alt=""><figcaption></figcaption></figure>
+### Dependencias de producción
 
-Feel free to test it out and copy the Markdown below by hovering over the code block in the upper right, and pasting into a new line underneath.
-
-```markdown
-# Heading
-
-This is some paragraph text, with a [link](https://docs.gitbook.com) to our docs. 
-
-## Heading 2
-- Point 1
-- Point 2
-- Point 3
+```python
+mediapipe==0.10.21
+opencv-python==4.11.0.86
+autopy==4.0.1
+numpy==1.26.4
+tensorflow==2.19.0
+PyAutoGUI==0.9.54
+playsound==1.3.0
+dearpygui==2.0.0
 ```
 
-{% hint style="info" %}
-If you have multiple files, GitBook makes it easy to import full repositories too — allowing you to keep your GitBook content in sync.
-{% endhint %}
+* **Lenguaje:** Python 3.12.8
+  * **Librerías utilizadas:**
+    * [Mediapipe](https://pypi.org/project/mediapipe/): configuración del modelo de detección de manos.
+    * [OpenCV](https://pypi.org/project/opencv-python/): captura, visualización y conversión de formato de frames de video.
+    * [Autopy](https://pypi.org/project/autopy/): control de las operaciones básicas del cursor (desplazamiento, click derecho e izquierdo).
+    * [Numpy](https://pypi.org/project/numpy/): formato correcto de los datos para la interpretación por parte del modelo entrenado.
+    * [Tensorflow](https://pypi.org/project/tensorflow/): cargar y ejecutar los modelos entrenados.
+    * [Pyautogui](https://pypi.org/project/PyAutoGUI/): control de la operación del cursor (scroll).
+    * [Playsound](https://pypi.org/project/playsound/): importación de audio personalizado para detección del gesto.
+    * [Dearpygui](https://pypi.org/project/dearpygui/): creación de interfaz gráfica de configuración.
+  * **Módulos:**&#x20;
+    * [Threading](https://docs.python.org/3.12/library/threading.html): ejecución de los gestos en hilos de procesamiento.
+    * [Time](https://docs.python.org/3.12/library/time.html): control de tiempo entre procesamiento de frames.
+    * [Math](https://docs.python.org/3.12/library/math.html): cálculo de distancia euclidiana para la normalización de datos de entrenamiento.
+
+### Dependencias de desarrollo
+
+* **Lenguaje:** Python 3.12.8
+  * **Módulos:**&#x20;
+    * [CSV](https://docs.python.org/3.12/library/csv.html): importación de archivo para la prueba del modelo entrenado en formato csv.
+
+### Dependencias de entrenamiento
+
+Dependencias utilizadas para la creación y entrenamiento de los modelos de IA.
+
+**Lenguaje:** Python 3.12.8
+
+* **Librerías utilizadas:**
+  * [Pandas](https://pypi.org/project/pandas/): leer el archivo csv y agrupar los datos por secuencia.
+  * [Numpy](https://pypi.org/project/numpy/): apilar la secuencia en matrices.
+  * [Sklearn](https://pypi.org/project/scikit-learn/): división de datos (entrenamiento y prueba) para la construcción de la red neuronal.
+  * [Tensorflow](https://pypi.org/project/tensorflow/)(keras): construcción, configuración y entrenamiento de la red neuronal.
