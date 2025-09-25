@@ -18,34 +18,33 @@ layout:
 
 # Estructura del proyecto
 
-GitBook has a powerful block-based editor that allows you to seamlessly create, update, and enhance your content.
-
-<figure><img src="https://gitbookio.github.io/onboarding-template-images/editor-hero.png" alt=""><figcaption></figcaption></figure>
-
-### Writing content
-
-GitBook offers a range of block types for you to add to your content inline — from simple text and tables, to code blocks and more. These elements will make your pages more useful to readers, and offer extra information and context.
-
-Either start typing below, or press `/` to see a list of the blocks you can insert into your page.
-
-### Add a new block
-
-{% stepper %}
-{% step %}
-#### Open the insert block menu
-
-Press `/` on your keyboard to open the insert block menu.
-{% endstep %}
-
-{% step %}
-#### Search for the block you need
-
-Try searching for “Stepper”, for exampe, to insert the stepper block.
-{% endstep %}
-
-{% step %}
-#### Insert and edit your block
-
-Click or press Enter to insert your block. From here, you’ll be able to edit it as needed.
-{% endstep %}
-{% endstepper %}
+* `assets/`: Almacena todos los recursos visuales y de audio.
+  * `fonts/`: Contiene las fuentes tipográficas utilizadas en la interfaz gráfica.
+  * `icons/`: Guarda los logos e iconos de la aplicación.
+  * `sound/`: Contiene los archivos de sonido que se reproduce al detectar un gesto.
+* `controller/`: Contiene la lógica de control del cursor del mouse.&#x20;
+  * CursorInterface.py:
+  * CursorTracker.py:
+  * AdaptiveCursor.py:
+* `hooks/`: Contiene "hooks" para el empaquetado de la aplicación con PyInstaller.&#x20;
+  * hook-mediapipe.py:&#x20;
+* `model/`: Contiene los modelos de machine learning pre-entrenados.&#x20;
+  * `hand/`: Almacena el modelo de _mediapipe_ para la detección de los puntos de referencia de la mano. &#x20;
+  * `gesture/`: Contiene los modelos (.tflite) entrenados para clasificar los gestos de la mano.&#x20;
+  * &#x20;ConvertModel.py:
+* `training/`: Scripts y datos para entrenar los modelos de reconocimiento de gestos.&#x20;
+  * FormatData.py:&#x20;
+  * TestModel.py:
+* `/` (Directorio Raíz):&#x20;
+  * .gitattributes:
+  * .gitignore:
+  * .lfsconfig:
+  * .python-version:
+  * DrawHand.py:
+  * HandTracker.py:
+  * LICENCE:&#x20;
+  * README.md:
+  * ResourcePaths.py:
+  * main.py:
+  * main.spec:
+  * requirements.txt:
